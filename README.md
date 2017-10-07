@@ -341,7 +341,7 @@ Calling this method more than once on the same instance is a NO-OP.
 
 The `Server` class is the main class in this package that implements the
 [`ServerInterface`](#serverinterface) and allows you to accept incoming
-streaming connections, such as plaintext TCP/IP or secure TLS connection streams.
+streaming connections, such as plaintext TCP/IP or secure TLS connection streams. Connections can also be accepted on Unix domain sockets.
 
 ```php
 $server = new Server(8080, $loop);
@@ -371,6 +371,12 @@ brackets:
 
 ```php
 $server = new Server('[::1]:8080', $loop);
+```
+
+To listen on a Unix domain socket, the uri MUST be prefixed with the `unix://` scheme:
+
+```php
+$server = new Server('unix:///tmp/.sock', $loop);
 ```
 
 If the given URI is invalid, does not contain a port, any other scheme or if it
@@ -647,6 +653,41 @@ expose these underlying resources.
 If you use a custom `ServerInterface` and its `connection` event does not
 meet this requirement, the `SecureServer` will emit an `error` event and
 then close the underlying connection.
+
+#### UnixServer
+
+The `UnixServer` class implements the [`ServerInterface`](#serverinterface) and
+is responsible for accepting connections on Unix domain sockets.
+
+```php
+$server = new UnixServer('/tmp/.sock', $loop);
+```
+
+As above, the `$uri` parameter can consist of only a filename or filename prefixed by the `unix://` scheme.
+
+If the given URI appears to be valid, but listening on it fails (such as if the socket is already in use or the file not accessible etc.), it will
+throw a `RuntimeException`:
+
+```php
+$first = new UnixServer('/tmp/same.sock', $loop);
+
+// throws RuntimeException because port is already in use
+$second = new UnixServer('/tmp/same.sock', $loop);
+```
+
+Whenever a client connects, it will emit a `connection` event with a connection
+instance implementing [`ConnectionInterface`](#connectioninterface):
+
+```php
+$server->on('connection', function (ConnectionInterface $connection) {
+    echo 'Plaintext connection from ' . $connection->getRemoteAddress() . PHP_EOL;
+
+    $connection->write('hello there!' . PHP_EOL);
+    …
+});
+```
+
+See also the [`ServerInterface`](#serverinterface) for more details.
 
 #### LimitingServer
 
