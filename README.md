@@ -34,6 +34,7 @@ handle multiple concurrent connections without blocking.
   * [Advanced server usage](#advanced-server-usage)
     * [TcpServer](#tcpserver)
     * [SecureServer](#secureserver)
+    * [UnixServer](#unixserver)
     * [LimitingServer](#limitingserver)
       * [getConnections()](#getconnections)
 * [Client usage](#client-usage)
