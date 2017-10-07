@@ -50,7 +50,7 @@ final class UnixServer extends EventEmitter implements ServerInterface
         if (strpos($path, '://') === false) {
             $path = 'unix://' . $path;
         } elseif (substr($path, 0, 7) !== 'unix://') {
-            throw new \InvalidArgumentException('Given URI "' . $path . '" is InvalidArgumentException');
+            throw new \InvalidArgumentException('Given URI "' . $path . '" is invalid');
         }
 
         $this->master = @stream_socket_server(
