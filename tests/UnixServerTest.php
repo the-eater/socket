@@ -263,13 +263,30 @@ class UnixServerTest extends TestCase
         $another = new UnixServer($this->uds, $this->loop);
     }
 
+    public function testConnectWithLongAddress()
+    {
+        https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
+        $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
+
+        $base = 'unix://' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(rand(), true) . '.sock';
+        $path = $base . str_repeat('_', $maxLen - strlen($base));
+
+        // should be able to connect if server existed
+        $another = new UnixServer($path, $this->loop);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
     public function testConnectWithOverlyLongAddress()
     {
-        // string > 104/108 characters
-        $path = "unix://" . sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 104) . '.sock';
+        // https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
+        $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
+
+        $base = 'unix://' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(rand(), true) . '.sock';
+        $path = $base . str_repeat('_', $maxLen - strlen($base) + 1);
+
+        // should not be able to connect due to path length
         $another = new UnixServer($path, $this->loop);
     }
 

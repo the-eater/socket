@@ -64,12 +64,28 @@ class UnixConnectorTest extends TestCase
 
     public function testConnectWithOverlyLongAddress()
     {
+        https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
+        $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
+
         // string > 104/108 characters
-        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 104) . '.sock';
+        $base = 'unix://' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(rand(), true) . '.sock';
+
+        // should cancel with connection failure
+        $path = $base . str_repeat('_', $maxLen - strlen($base));
 
         $promise = $this->connector->connect($path);
-        $promise->then($this->expectCallableNever(), function($error) {
-            $this->assertInstanceOf(\InvalidArgumentException::class, $error);
+        $promise->then($this->expectCallableNever(), function($error) use (&$cancelResult) {
+            $cancelResult = $error;
         });
+        $this->assertInstanceOf(\RuntimeException::class, $cancelResult);
+
+        // should cancel with invalid argument failure
+        $path = $base . str_repeat('_', $maxLen - strlen($base) + 1);
+
+        $promise = $this->connector->connect($path);
+        $promise->then($this->expectCallableNever(), function($error) use (&$cancelResult) {
+            $cancelResult = $error;
+        });
+        $this->assertInstanceOf(\InvalidArgumentException::class, $cancelResult);
     }
 }
