@@ -268,8 +268,8 @@ class UnixServerTest extends TestCase
      */
     public function testConnectWithOverlyLongAddress()
     {
-        // string > 104 characters
-        $path = "unix://" . sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 100) . '.sock';
+        // string > 104/108 characters
+        $path = "unix://" . sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 104) . '.sock';
         $another = new UnixServer($path, $this->loop);
     }
 

@@ -64,8 +64,8 @@ class UnixConnectorTest extends TestCase
 
     public function testConnectWithOverlyLongAddress()
     {
-        // string > 104 characters
-        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 100) . '.sock';
+        // string > 104/108 characters
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 104) . '.sock';
 
         $promise = $this->connector->connect($path);
         $promise->then($this->expectCallableNever(), function($error) {
