@@ -64,7 +64,7 @@ class UnixConnectorTest extends TestCase
 
     public function testConnectWithOverlyLongAddress()
     {
-        https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
+        // https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
         $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
 
         // string > 104/108 characters

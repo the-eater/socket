@@ -265,7 +265,7 @@ class UnixServerTest extends TestCase
 
     public function testConnectWithLongAddress()
     {
-        https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
+        // https://serverfault.com/questions/641347/check-if-a-path-exceeds-maximum-for-unix-domain-socket
         $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
 
         $base = 'unix://' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(rand(), true) . '.sock';
