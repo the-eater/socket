@@ -61,4 +61,15 @@ class UnixConnectorTest extends TestCase
         $this->assertNull($local);
         $this->assertEquals('unix://' . $path, $remote);
     }
+
+    public function testConnectWithOverlyLongAddress()
+    {
+        // string > 104 characters
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 100) . '.sock';
+
+        $promise = $this->connector->connect($path);
+        $promise->then($this->expectCallableNever(), function($error) {
+            $this->assertInstanceOf(\InvalidArgumentException::class, $error);
+        });
+    }
 }
