@@ -53,8 +53,9 @@ final class UnixServer extends EventEmitter implements ServerInterface
             throw new \InvalidArgumentException('Given URI "' . $path . '" is invalid');
         }
 
-        if (strlen($path) > 104) {
-            throw new \InvalidArgumentException('Given URI "' . $path . '" exceeds maximum allowed length of 104 bytes');
+        $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
+        if (strlen($path) > $maxLen) {
+            throw new \InvalidArgumentException('Given URI "' . $path . '" exceeds maximum allowed length');
         }
 
         $this->master = @stream_socket_server(

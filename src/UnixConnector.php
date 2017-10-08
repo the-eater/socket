@@ -31,8 +31,9 @@ final class UnixConnector implements ConnectorInterface
             return Promise\reject(new InvalidArgumentException('Given URI "' . $path . '" is invalid'));
         }
 
-        if (strlen($path) > 104) {
-            return Promise\reject(new InvalidArgumentException('Given URI "' . $path . '" exceeds maximum allowed length of 104 bytes'));
+        $maxLen = PHP_OS === 'Darwin' ? 104 : 108;
+        if (strlen($path) > $maxLen) {
+            return Promise\reject(new InvalidArgumentException('Given URI "' . $path . '" exceeds maximum allowed length'));
         }
 
         $resource = @stream_socket_client($path, $errno, $errstr, 1.0);
