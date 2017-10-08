@@ -19,13 +19,20 @@ class UnixServerTest extends TestCase
 
     /**
      * @covers React\Socket\UnixServer::__construct
-     * @covers React\Socket\UnixServer::getAddress
      */
     public function setUp()
     {
         $this->loop = $this->createLoop();
         $this->uds = $this->getRandomSocketUri();
         $this->server = new UnixServer($this->uds, $this->loop);
+    }
+
+    /**
+     * @covers React\Socket\UnixServer::getAddress
+     */
+    public function testAddress()
+    {
+        $this->assertEquals($this->uds, $this->server->getAddress());
     }
 
     /**
@@ -258,6 +265,16 @@ class UnixServerTest extends TestCase
         }
 
         $another = new UnixServer($this->uds, $this->loop);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testConnectWithOverlyLongAddress()
+    {
+        // string > 104 characters
+        $path = "unix://" . sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_repeat('_', 100) . '.sock';
+        $another = new UnixServer($path, $this->loop);
     }
 
     /**
