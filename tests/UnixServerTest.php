@@ -175,9 +175,6 @@ class UnixServerTest extends TestCase
         $this->assertEquals($bytes, $received);
     }
 
-    /**
-     * @covers React\EventLoop\StreamSelectLoop::tick
-     */
     public function testConnectionDoesNotEndWhenClientDoesNotClose()
     {
         $client = stream_socket_client($this->uds);
@@ -192,7 +189,6 @@ class UnixServerTest extends TestCase
     }
 
     /**
-     * @covers React\EventLoop\StreamSelectLoop::tick
      * @covers React\Socket\Connection::end
      */
     public function testConnectionDoesEndWhenClientCloses()
