@@ -77,7 +77,7 @@ class UnixConnectorTest extends TestCase
         $promise->then($this->expectCallableNever(), function($error) use (&$cancelResult) {
             $cancelResult = $error;
         });
-        $this->assertInstanceOf(\RuntimeException::class, $cancelResult);
+        $this->assertInstanceOf('RuntimeException', $cancelResult);
 
         // should cancel with invalid argument failure
         $path = $base . str_repeat('_', $maxLen - strlen($base) + 1);
@@ -86,6 +86,6 @@ class UnixConnectorTest extends TestCase
         $promise->then($this->expectCallableNever(), function($error) use (&$cancelResult) {
             $cancelResult = $error;
         });
-        $this->assertInstanceOf(\InvalidArgumentException::class, $cancelResult);
+        $this->assertInstanceOf('InvalidArgumentException', $cancelResult);
     }
 }
