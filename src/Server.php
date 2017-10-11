@@ -23,23 +23,7 @@ final class Server extends EventEmitter implements ServerInterface
             'unix' => array(),
         );
 
-        $scheme = 'tcp';
-        $pos = strpos($uri, '://');
-        if ($pos !== false) {
-            $scheme = substr($uri, 0, $pos);
-        }
-
-        if ($scheme === 'unix') {
-            $server = new UnixServer($uri, $loop, $context['unix']);
-        }
-        else {
-            $server = new TcpServer(str_replace('tls://', '', $uri), $loop, $context['tcp']);
-
-            if ($scheme === 'tls') {
-                $server = new SecureServer($server, $loop, $context['tls']);
-            }
-        }
-
+        $server = $this->getServer($uri, $loop, $context);
         $this->server = $server;
 
         $that = $this;
@@ -49,6 +33,27 @@ final class Server extends EventEmitter implements ServerInterface
         $server->on('error', function (\Exception $error) use ($that) {
             $that->emit('error', array($error));
         });
+    }
+
+    private function getServer($uri, $loop, $context) {
+        $scheme = 'tcp';
+        $pos = strpos($uri, '://');
+        if ($pos !== false) {
+            $scheme = substr($uri, 0, $pos);
+        }
+
+        if ($scheme === 'unix') {
+            return new UnixServer($uri, $loop, $context['unix']);
+        }
+
+        $server = new TcpServer(str_replace('tls://', '', $uri), $loop, $context['tcp']);
+
+        if ($scheme === 'tls') {
+            $server = new SecureServer($server, $loop, $context['tls']);
+        }
+
+        return $server;
+
     }
 
     public function getAddress()
