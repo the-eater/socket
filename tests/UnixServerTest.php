@@ -2,7 +2,8 @@
 
 namespace React\Tests\Socket;
 
-use React\EventLoop\StreamSelectLoop;
+use Clue\React\Block;
+use React\EventLoop\Factory;
 use React\Socket\UnixServer;
 use React\Stream\DuplexResourceStream;
 
@@ -12,17 +13,12 @@ class UnixServerTest extends TestCase
     private $server;
     private $uds;
 
-    private function createLoop()
-    {
-        return new StreamSelectLoop();
-    }
-
     /**
      * @covers React\Socket\UnixServer::__construct
      */
     public function setUp()
     {
-        $this->loop = $this->createLoop();
+        $this->loop = Factory::create();
         $this->uds = $this->getRandomSocketUri();
         $this->server = new UnixServer($this->uds, $this->loop);
     }
@@ -43,7 +39,7 @@ class UnixServerTest extends TestCase
         $client = stream_socket_client($this->uds);
 
         $this->server->on('connection', $this->expectCallableOnce());
-        $this->loop->tick();
+        $this->tick();
     }
 
     /**
@@ -56,9 +52,9 @@ class UnixServerTest extends TestCase
         $client3 = stream_socket_client($this->uds);
 
         $this->server->on('connection', $this->expectCallableExactly(3));
-        $this->loop->tick();
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
+        $this->tick();
     }
 
     public function testDataEventWillNotBeEmittedWhenClientSendsNoData()
@@ -70,8 +66,8 @@ class UnixServerTest extends TestCase
         $this->server->on('connection', function ($conn) use ($mock) {
             $conn->on('data', $mock);
         });
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
     }
 
     public function testDataWillBeEmittedWithDataClientSends()
@@ -85,8 +81,8 @@ class UnixServerTest extends TestCase
         $this->server->on('connection', function ($conn) use ($mock) {
             $conn->on('data', $mock);
         });
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
     }
 
     public function testDataWillBeEmittedEvenWhenClientShutsDownAfterSending()
@@ -100,8 +96,8 @@ class UnixServerTest extends TestCase
         $this->server->on('connection', function ($conn) use ($mock) {
             $conn->on('data', $mock);
         });
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
     }
 
     public function testLoopWillEndWhenServerIsClosed()
@@ -184,8 +180,8 @@ class UnixServerTest extends TestCase
         $this->server->on('connection', function ($conn) use ($mock) {
             $conn->on('end', $mock);
         });
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
     }
 
     /**
@@ -202,8 +198,8 @@ class UnixServerTest extends TestCase
         $this->server->on('connection', function ($conn) use ($mock) {
             $conn->on('end', $mock);
         });
-        $this->loop->tick();
-        $this->loop->tick();
+        $this->tick();
+        $this->tick();
     }
 
     public function testCtorAddsResourceToLoop()
@@ -303,5 +299,10 @@ class UnixServerTest extends TestCase
     private function getRandomSocketUri()
     {
         return "unix://" . sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid(rand(), true) . '.sock';
+    }
+
+    private function tick()
+    {
+        Block\sleep(0, $this->loop);
     }
 }
